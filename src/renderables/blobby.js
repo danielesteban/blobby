@@ -87,10 +87,10 @@ class Blobby {
       position,
     } = this;
     if (path) {
-      path.step = Math.min(path.step + delta * 8, path.positions.length - 1);
-      const step = Math.floor(Math.min(path.step, path.positions.length - 2));
-      position.lerpVectors(path.positions[step], path.positions[step + 1], path.step % 1);
-      if (path.step === path.positions.length - 1) {
+      path.step = Math.min(path.step + delta * 8, path.steps);
+      const step = Math.floor(Math.min(path.step, path.steps - 1));
+      position.lerpVectors(path.points[step], path.points[step + 1], path.step - step);
+      if (path.step === path.steps) {
         this.path = null;
       }
     }
@@ -147,17 +147,17 @@ class Blobby {
         height: 4,
       });
       if (results.length > 3) {
-        const positions = [position.clone()];
+        const points = [position.clone()];
         for (let i = 3, l = results.length; i < l; i += 3) {
           const isDestination = i === l - 3;
-          positions.push(new Vector3(
+          points.push(new Vector3(
             results[i] + (isDestination ? 0.5 : 0.25 + Math.random() * 0.5),
             results[i + 1],
             results[i + 2] + (isDestination ? 0.5 : 0.25 + Math.random() * 0.5)
           ));
         }
-        this.path = { positions, step: 0 };
-        return positions[positions.length - 1];
+        this.path = { points, steps: points.length - 1, step: 0 };
+        return points[this.path.steps];
       }
     }
     return false;
