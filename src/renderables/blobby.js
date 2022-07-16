@@ -46,7 +46,10 @@ class Blobby {
       entity({ color: palette.eyes, scale: new Vector3(1.5, 1.5, 1.5) }),
     ];
     this.feet = Array.from({ length: limbs }, (v, i) => {
-      const foot = entity({ color: palette.feet, scale: new Vector3(0.1 + Math.random() * 0.2, 0.1 + Math.random() * 0.2, 0.1 + Math.random() * 0.2) });
+      const foot = entity({
+        color: palette.feet,
+        scale: new Vector3(0.1 + Math.random() * 0.2, 0.1 + Math.random() * 0.2, 0.1 + Math.random() * 0.2),
+      });
       foot.target = foot.position.clone();
       return foot;
     });
@@ -57,7 +60,7 @@ class Blobby {
     }));
     this.legsTop = Array.from({ length: limbs }, () => entity({
       color: palette.legsTop,
-      scale: new Vector3(Math.random() * 0.2, 0, 0),
+      scale: new Vector3(0.2, 0, 0),
       shape: shapes.capsule,
     }));
 
@@ -115,11 +118,10 @@ class Blobby {
           }
         }
       }
-      foot.scale.setScalar(0.3 + Math.sin(time * 2 + i) * 0.2);
       foot.position.x = MathUtils.damp(foot.position.x, foot.target.x, 4, delta);
       foot.position.y = MathUtils.damp(foot.position.y, foot.target.y, 4, delta);
       foot.position.z = MathUtils.damp(foot.position.z, foot.target.z, 4, delta);
-      legsTop[i].scale.x = foot.scale.x;
+      legsTop[i].scale.x = 0.3 + Math.sin(time * 2 + i) * 0.2;
       [legsBottom[i], legsTop[i]].forEach((limb, i) => {
         if (i === 0) {
           _from.copy(foot.position);
