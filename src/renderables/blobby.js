@@ -55,7 +55,7 @@ class Blobby {
     });
     this.legsBottom = Array.from({ length: limbs }, () => entity({
       color: palette.legsBottom,
-      scale: new Vector3(Math.random() * 0.2, 0, 0),
+      scale: new Vector3(0.1 + Math.random() * 0.1, 0, 0),
       shape: shapes.capsule,
     }));
     this.legsTop = Array.from({ length: limbs }, () => entity({
