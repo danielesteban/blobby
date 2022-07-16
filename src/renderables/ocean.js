@@ -9,7 +9,7 @@ import {
 
 class Ocean extends Mesh {
   static setupGeometry() {
-    const geometry = new PlaneGeometry(10000, 10000, 1, 1);
+    const geometry = new PlaneGeometry(1000, 1000, 1, 1);
     geometry.deleteAttribute('normal');
     geometry.deleteAttribute('uv');
     geometry.rotateX(Math.PI * -0.5);
@@ -21,6 +21,7 @@ class Ocean extends Mesh {
     Ocean.material = new ShaderMaterial({
       uniforms: {
         ...UniformsUtils.clone(uniforms),
+        background: { value: new Color(0x1a2a3a) },
         diffuse: { value: new Color(0x112233) },
       },
       vertexShader: vertexShader
@@ -33,7 +34,7 @@ class Ocean extends Mesh {
         .replace(
           '#include <fog_vertex>',
           [
-            'vPos = transformed.xyz;',
+            'vPos = transformed;',
           ].join('\n')
         ),
       fragmentShader: fragmentShader
@@ -41,8 +42,8 @@ class Ocean extends Mesh {
           '#include <fog_pars_fragment>',
           [
             'varying vec3 vPos;',
-            'const vec3 fogColor = vec3(0.2863675817714411);',
-            'const float fogDensity = 0.002;',
+            'uniform vec3 background;',
+            'const float fogDensity = 0.005;',
           ].join('\n')
         )
         .replace(
@@ -50,7 +51,7 @@ class Ocean extends Mesh {
           [
             'float vFogDepth = length(vPos);',
             'float fogFactor = 1.0 - exp( - fogDensity * fogDensity * vFogDepth * vFogDepth );',
-            'gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );',
+            'gl_FragColor.rgb = mix( gl_FragColor.rgb, background, fogFactor );',
           ].join('\n')
         ),
     });

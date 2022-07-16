@@ -31,12 +31,12 @@ window.addEventListener('resize', () => {
 }, false);
 
 const scene = new Scene();
-scene.background = new Color(0x111111);
+scene.background = (new Color(0x1a2a3a)).convertSRGBToLinear();
 
 camera.position.set(128, 64, 128);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
-controls.target.set(96, 0, 96);
+controls.target.set(96, 16, 96);
 {
   const rotate = controls.mouseButtons.LEFT;
   const pan = controls.mouseButtons.RIGHT;
