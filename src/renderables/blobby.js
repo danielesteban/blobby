@@ -8,8 +8,6 @@ import {
 
 const _from = new Vector3();
 const _to = new Vector3();
-const _offset = new Vector3();
-const _voxel = new Vector3();
 const _matrix = new Matrix4();
 const _forward = new Vector3();
 const _right = new Vector3();
@@ -17,8 +15,19 @@ const _target = new Vector3();
 const _up = new Vector3(0, 1, 0);
 
 class Blobby {
-  constructor({ operations, shapes }, volume) {
-    const limbs = 9;
+  constructor({
+    limbs = 9,
+    palette = {
+      head: new Color(Math.random() * 0xFFFFFF),
+      eyes: new Color(Math.random() * 0xFFFFFF),
+      feet: new Color(Math.random() * 0xFFFFFF),
+      legsBottom: new Color(Math.random() * 0xFFFFFF),
+      legsTop: new Color(Math.random() * 0xFFFFFF),
+    },
+    operations,
+    shapes,
+    volume,
+  }) {
     const entity = ({ color, scale, shape = shapes.sphere }) => ({
       color,
       operation: operations.union,
@@ -27,15 +36,9 @@ class Blobby {
       scale,
       shape,
     });
-    const palette = {
-      head: new Color(Math.random() * 0xFFFFFF),
-      eyes: new Color(Math.random() * 0xFFFFFF),
-      feet: new Color(Math.random() * 0xFFFFFF),
-      legsBottom: new Color(Math.random() * 0xFFFFFF),
-      legsTop: new Color(Math.random() * 0xFFFFFF),
-    };
+    this.volume = volume;
     this.position = new Vector3(volume.width * 0.5 + 0.5, volume.height - 1, volume.depth * 0.5 + 0.5);
-    this.position.y = volume.ground(_voxel.copy(this.position).floor(), 4);
+    this.position.y = volume.ground(_target.copy(this.position).floor(), 4);
     this.head = entity({
       color: palette.head,
       position: new Vector3(volume.width * 0.5 + 0.5, volume.height - 1, volume.depth * 0.5 + 0.5),
@@ -53,6 +56,7 @@ class Blobby {
       foot.target = foot.position.clone();
       return foot;
     });
+    this.feet.forEach((foot) => this.updateTarget(foot));
     this.legsBottom = Array.from({ length: limbs }, () => entity({
       color: palette.legsBottom,
       scale: new Vector3(0.1 + Math.random() * 0.1, 0, 0),
@@ -63,9 +67,13 @@ class Blobby {
       scale: new Vector3(0.2, 0, 0),
       shape: shapes.capsule,
     }));
-
-    this.entities = [this.head, ...this.eyes, ...this.feet, ...this.legsBottom, ...this.legsTop];
-    this.volume = volume;
+    this.entities = [
+      this.head,
+      ...this.eyes,
+      ...this.feet,
+      ...this.legsBottom,
+      ...this.legsTop
+    ];
   }
 
   onAnimationTick(delta, time) {
@@ -77,19 +85,18 @@ class Blobby {
       legsTop,
       path,
       position,
-      volume,
     } = this;
-    head.scale.setScalar(2.5 + Math.sin(time * 4) * 0.25);
     if (path) {
       path.step = Math.min(path.step + delta * 8, path.positions.length - 1);
       const step = Math.floor(Math.min(path.step, path.positions.length - 2));
       position.lerpVectors(path.positions[step], path.positions[step + 1], path.step % 1);
-      head.position.copy(position);
-      head.position.y += head.scale.y + 2;
       if (path.step === path.positions.length - 1) {
         this.path = null;
       }
     }
+    head.scale.setScalar(2.5 + Math.sin(time * 4) * 0.25);
+    head.position.copy(position);
+    head.position.y += 2 + head.scale.y;
     eyes.forEach((eye, i) => {
       eye.scale.setScalar(head.scale.x * 0.5);
       eye.position.copy(head.position);
@@ -101,22 +108,7 @@ class Blobby {
     feet.forEach((foot, i) => {
       const d = foot.target.distanceTo(position);
       if (d > 10) {
-        for (let attempt = 0; attempt < 10; attempt++) {
-          _offset.set(0.5 + Math.random(), Math.random(), 0.5 + Math.random());
-          if (Math.random() > 0.5) _offset.x *= -1;
-          if (Math.random() > 0.5) _offset.z *= -1;
-          _voxel.copy(position).addScaledVector(_offset, 5).floor();
-          _voxel.y = volume.ground(_voxel, 4);
-          if (_voxel.y > 0) {
-            _voxel.y += foot.scale.y;
-            _voxel.x += 0.5;
-            _voxel.z += 0.5;
-            if (!feet.find((f) => f.target.distanceTo(_voxel) <= 4)) {
-              foot.target.copy(_voxel);
-              break;
-            }
-          }
-        }
+        this.updateTarget(foot);
       }
       foot.position.x = MathUtils.damp(foot.position.x, foot.target.x, 4, delta);
       foot.position.y = MathUtils.damp(foot.position.y, foot.target.y, 4, delta);
@@ -169,6 +161,26 @@ class Blobby {
       }
     }
     return false;
+  }
+
+  updateTarget(foot) {
+    const { feet, position, volume } = this;
+    for (let attempt = 0; attempt < 10; attempt++) {
+      _to.set(0.5 + Math.random(), Math.random(), 0.5 + Math.random());
+      if (Math.random() > 0.5) _to.x *= -1;
+      if (Math.random() > 0.5) _to.z *= -1;
+      _target.copy(position).addScaledVector(_to, 5).floor();
+      _target.y = volume.ground(_target, 4);
+      if (_target.y > 0) {
+        _target.y += foot.scale.y;
+        _target.x += 0.5;
+        _target.z += 0.5;
+        if (!feet.find((f) => f.target.distanceTo(_target) <= 4)) {
+          foot.target.copy(_target);
+          break;
+        }
+      }
+    }
   }
 }
 

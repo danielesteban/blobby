@@ -84,7 +84,11 @@ const volume = new Volume({
       .then(() => {
         volume.propagate();
 
-        blobby = new Blobby(Raymarcher, volume);
+        blobby = new Blobby({
+          operations: Raymarcher.operations,
+          shapes: Raymarcher.shapes,
+          volume,
+        });
         raymarcher = new Raymarcher({
           resolution: 0.5,
           layers: [blobby.entities],
