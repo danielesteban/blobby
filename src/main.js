@@ -15,6 +15,7 @@ import Raymarcher from 'three-raymarcher';
 import PostProcessing from './core/postprocessing.js';
 import Blobby from './renderables/blobby.js';
 import Indicator from './renderables/indicator.js';
+import Ocean from './renderables/ocean.js';
 
 const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new WebGLRenderer({ alpha: true, antialias: true });
@@ -71,6 +72,7 @@ scene.add(indicator);
 
 let blobby;
 let cubitos;
+let ocean;
 let raymarcher;
 
 const volume = new Volume({
@@ -99,6 +101,10 @@ const volume = new Volume({
           volume,
         });
         scene.add(cubitos);
+
+        ocean = new Ocean();
+        ocean.position.set(volume.width * 0.5, 0, volume.depth * 0.5);
+        ocean.updateMatrixWorld();
 
         clock.start();
         document.getElementById('loading').classList.remove('enabled');
@@ -131,5 +137,6 @@ renderer.setAnimationLoop(() => {
   postprocessing.render(renderer, scene, camera);
   renderer.autoClear = false;
   renderer.render(raymarcher, camera);
+  renderer.render(ocean, camera);
   renderer.autoClear = true;
 });
