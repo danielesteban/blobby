@@ -89,8 +89,8 @@ const volume = new Volume({
         });
 
         const atlas = new DataArrayTexture(new Uint8Array([
-          Math.floor(Math.random() * 0xAA), Math.floor(Math.random() * 0xAA),Math.floor(Math.random() * 0xAA), 0xFF,
-          Math.floor(Math.random() * 0xAA), Math.floor(Math.random() * 0xAA),Math.floor(Math.random() * 0xAA), 0xFF
+          Math.floor(Math.random() * 0xAA), Math.floor(Math.random() * 0xAA), Math.floor(Math.random() * 0xAA), 0xFF,
+          Math.floor(Math.random() * 0xAA), Math.floor(Math.random() * 0xAA), Math.floor(Math.random() * 0xAA), 0xFF
         ]), 1, 1, 2);
         atlas.needsUpdate = true;
 
@@ -99,6 +99,9 @@ const volume = new Volume({
           volume,
         });
         scene.add(cubitos);
+
+        clock.start();
+        document.getElementById('loading').classList.remove('enabled');
       })
   ),
   onError: (e) => console.error(e),
