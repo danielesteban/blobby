@@ -7,7 +7,7 @@
 
 ```bash
 # clone repo:
-git clone --recursive https://github.com/danielesteban/blobby.git
+git clone https://github.com/danielesteban/blobby.git
 cd blobby
 # install dependencies:
 npm install
