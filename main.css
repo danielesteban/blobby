@@ -5,7 +5,9 @@ body {
   cursor: default;
   user-select: none;
   overflow: hidden;
-  font-family: monospace;
+  font-family: 'VT323', monospace;
+  font-size: 1rem;
+  line-height: 1.125rem;
 }
 
 canvas {
